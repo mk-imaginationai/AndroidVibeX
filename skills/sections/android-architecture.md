@@ -149,18 +149,23 @@ class HomeViewModel @Inject constructor(
     private val getItems: GetItemsUseCase
 ) : ViewModel() {
 
-    private val _uiEvent = Channel<UiEvent>()
+    // BUFFERED so events sent before the UI attaches are queued, not lost
+    private val _uiEvent = Channel<UiEvent>(Channel.BUFFERED)
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    // Track the job so refresh cancels the previous collection before starting a new one
+    private var loadJob: Job? = null
+
+    fun refresh() {
+        loadJob?.cancel()
+        loadJob = getItems()
+            .onEach { /* handle Resource states */ }
+            .launchIn(viewModelScope)
+    }
 
     fun onItemClick(id: String) {
         viewModelScope.launch {
             _uiEvent.send(UiEvent.Navigate("detail/$id"))
-        }
-    }
-
-    fun onDeleteSuccess() {
-        viewModelScope.launch {
-            _uiEvent.send(UiEvent.ShowSnackbar("Item deleted"))
         }
     }
 }

@@ -248,6 +248,20 @@ class HomeViewModelFlowTest {
 
 Use `cancelAndIgnoreRemainingEvents()` at the end of every Turbine block — it closes the subscription cleanly and prevents test hangs.
 
+**StateFlow gotcha:** `StateFlow` emits its current value immediately when collected — before any coroutine in `init {}` runs. Always consume or skip that first emission in ViewModel tests:
+
+```kotlin
+viewModel.uiState.test {
+    awaitItem() // initial TaskListUiState() — emitted synchronously on collection
+
+    val loading = awaitItem() // now loadTasks() coroutine has run
+    assertTrue(loading.isLoading)
+    ...
+}
+```
+
+Cold `Flow`s (from a repository or Use Case) do NOT have this initial emission — `awaitItem()` gets the first value the flow emits.
+
 ---
 
 ## Guardrails
