@@ -1,6 +1,6 @@
 ---
 name: android-testing
-description: Use when writing JUnit unit tests, Espresso UI tests, or setting up a testing strategy. Covers ViewModel testing with TestCoroutineDispatcher, Repository testing with fakes, and UI testing with Espresso/Compose.
+description: Use when writing JUnit unit tests, Espresso UI tests, or setting up a testing strategy. Covers ViewModel testing with StandardTestDispatcher, Repository testing with fakes, and UI testing with Espresso/Compose.
 ---
 
 # Android Testing
@@ -59,8 +59,9 @@ class HomeViewModelTest {
 }
 
 // MainDispatcherRule — replaces Main dispatcher with test dispatcher
+// Uses StandardTestDispatcher (coroutines-test 1.6+); TestCoroutineDispatcher is deprecated
 class MainDispatcherRule(
-    val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    val dispatcher: TestDispatcher = StandardTestDispatcher()
 ) : TestWatcher() {
     override fun starting(description: Description) = Dispatchers.setMain(dispatcher)
     override fun finished(description: Description) = Dispatchers.resetMain()
