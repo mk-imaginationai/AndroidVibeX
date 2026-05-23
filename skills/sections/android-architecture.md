@@ -23,6 +23,26 @@ description: Use when designing app architecture, choosing between MVVM/MVP/MVC/
 
 ## Implementation Patterns
 
+### Resource<T> — Result type for offline-first UI
+
+`Result<T>` has two states: success or failure. For offline-first UX you need a third: loading with optional stale data, and error with optional stale data. Use `Resource<T>` whenever the Repository may serve cached data alongside a failure.
+
+```kotlin
+sealed class Resource<T>(
+    val data: T? = null,
+    val message: String? = null
+) {
+    class Success<T>(data: T) : Resource<T>(data)
+    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
+    class Loading<T>(data: T? = null) : Resource<T>(data)
+}
+```
+
+Use `Result<T>` (`runCatching`) for simple one-off operations with no stale-data concern.
+Use `Resource<T>` for repository operations that return a `Flow` and may emit cached data before or alongside errors.
+
+---
+
 ### MVVM — Full example
 
 ```kotlin
@@ -33,10 +53,10 @@ sealed interface HomeUiState {
     data class Error(val message: String) : HomeUiState
 }
 
-// ViewModel
+// ViewModel — calls UseCase, never Repository directly
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: ItemRepository
+    private val getItems: GetItemsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -48,7 +68,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadItems() {
         viewModelScope.launch {
-            repository.getItems()
+            getItems()
                 .onSuccess { items -> _uiState.value = HomeUiState.Success(items) }
                 .onFailure { e -> _uiState.value = HomeUiState.Error(e.message ?: "Unknown error") }
         }
@@ -74,6 +94,95 @@ class ItemRepositoryImpl @Inject constructor(
 }
 ```
 
+### Use Cases — Domain layer
+
+Create a Use Case for every operation the ViewModel needs. The ViewModel injects Use Cases — never Repositories directly. This keeps business logic out of the ViewModel and makes it independently testable.
+
+```kotlin
+// domain/use_case/GetItemsUseCase.kt
+class GetItemsUseCase @Inject constructor(
+    private val repository: ItemRepository
+) {
+    suspend operator fun invoke(): Result<List<Item>> = repository.getItems()
+}
+
+// domain/use_case/DeleteItemUseCase.kt
+class DeleteItemUseCase @Inject constructor(
+    private val repository: ItemRepository
+) {
+    suspend operator fun invoke(id: String): Result<Unit> = repository.deleteItem(id)
+}
+```
+
+Use Cases containing real logic (not just pass-through):
+
+```kotlin
+class GetFilteredItemsUseCase @Inject constructor(
+    private val repository: ItemRepository
+) {
+    suspend operator fun invoke(query: String): Result<List<Item>> =
+        repository.getItems().map { items ->
+            items.filter { it.title.contains(query, ignoreCase = true) }
+        }
+}
+```
+
+When to skip a Use Case: never. Even a simple pass-through Use Case costs one file and pays for itself the first time a second ViewModel needs the same operation.
+
+---
+
+### Channel<UiEvent> — One-shot UI events
+
+Use `Channel` for events that must be delivered exactly once: navigation, snackbars, toasts. **Never use `SharedFlow` for this** — `SharedFlow` replays the last emission when a new collector subscribes, so a navigation event fires again after rotation.
+
+```kotlin
+sealed class UiEvent {
+    data class ShowSnackbar(val message: String) : UiEvent()
+    data class Navigate(val route: String) : UiEvent()
+    data object NavigateUp : UiEvent()
+}
+
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val getItems: GetItemsUseCase
+) : ViewModel() {
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
+    fun onItemClick(id: String) {
+        viewModelScope.launch {
+            _uiEvent.send(UiEvent.Navigate("detail/$id"))
+        }
+    }
+
+    fun onDeleteSuccess() {
+        viewModelScope.launch {
+            _uiEvent.send(UiEvent.ShowSnackbar("Item deleted"))
+        }
+    }
+}
+
+// In Composable — collect once with LaunchedEffect:
+@Composable
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val navController = LocalNavController.current
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
+                is UiEvent.Navigate -> navController.navigate(event.route)
+                UiEvent.NavigateUp -> navController.navigateUp()
+            }
+        }
+    }
+}
+```
+
+---
+
 ### Hilt DI — Module setup
 
 ```kotlin
@@ -96,7 +205,9 @@ object NetworkModule {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            // Use kotlinx.serialization (R8-safe, no reflection):
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            // See android-networking skill for full serialization setup and DTO annotations
             .build()
 
     @Provides
@@ -197,7 +308,7 @@ data class NotificationConfig(
 ## Guardrails
 
 ### DO
-- Use `StateFlow` for UI state. Use `SharedFlow` for one-shot events (navigation, snackbar).
+- Use `StateFlow` for UI state. Use `Channel<UiEvent>` for one-shot events (navigation, snackbar). Never `SharedFlow` for events — it replays the last emission on resubscription, causing duplicate navigation after rotation.
 - Use `SharingStarted.WhileSubscribed(5_000)` to avoid resource leaks when the app goes to background.
 - Use `@HiltViewModel` — never instantiate ViewModels manually with `ViewModelProvider.Factory` unless Hilt cannot be used.
 - Use `Result<T>` (`runCatching`) for wrapping Repository results.

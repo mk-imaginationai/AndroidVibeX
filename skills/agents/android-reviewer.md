@@ -42,7 +42,7 @@ Run through this checklist for every review:
 
 ### Testing
 - [ ] ViewModel has unit tests?
-- [ ] Tests use fakes, not mocks?
+- [ ] Repository tests use fakes (not mocks) unless interaction verification is explicitly needed?
 - [ ] `MainDispatcherRule` present in ViewModel tests?
 
 ### Security

@@ -128,6 +128,58 @@ class ItemRepositoryImpl @Inject constructor(private val api: ItemApi) : ItemRep
 }
 ```
 
+### networkBoundResource — Offline-first Flow pattern
+
+Use this when the UI should show cached data immediately while a network refresh happens in the background. Emits `Resource.Loading(cachedData)` → fresh data or `Resource.Error(message, cachedData)`.
+
+```kotlin
+inline fun <ResultType, RequestType> networkBoundResource(
+    crossinline query: () -> Flow<ResultType>,
+    crossinline fetch: suspend () -> RequestType,
+    crossinline saveFetchResult: suspend (RequestType) -> Unit,
+    crossinline shouldFetch: (ResultType) -> Boolean = { true }
+) = flow<Resource<ResultType>> {
+    val data = query().first()
+
+    val flow = if (shouldFetch(data)) {
+        emit(Resource.Loading(data))
+        try {
+            saveFetchResult(fetch())
+            query().map { Resource.Success(it) }
+        } catch (throwable: Throwable) {
+            query().map { Resource.Error(throwable.localizedMessage ?: "Network error", it) }
+        }
+    } else {
+        query().map { Resource.Success(it) }
+    }
+    emitAll(flow)
+}
+
+// Repository usage:
+fun getItems(): Flow<Resource<List<Item>>> = networkBoundResource(
+    query = { dao.observeAll().map { entities -> entities.map { it.toDomain() } } },
+    fetch = { api.getItems() },
+    saveFetchResult = { dto -> dao.insertAll(dto.map { it.toEntity() }) }
+)
+
+// ViewModel usage:
+private fun loadItems() {
+    repository.getItems()
+        .onEach { resource ->
+            when (resource) {
+                is Resource.Loading -> _uiState.value = HomeUiState.Loading
+                is Resource.Success -> _uiState.value = HomeUiState.Success(resource.data ?: emptyList())
+                is Resource.Error -> _uiState.value = HomeUiState.Error(resource.message ?: "Unknown error")
+            }
+        }
+        .launchIn(viewModelScope)
+}
+```
+
+Requires `Resource<T>` from the android-architecture skill.
+
+---
+
 ### Apollo Android — GraphQL query
 
 ```kotlin

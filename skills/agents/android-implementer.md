@@ -26,12 +26,13 @@ Load the relevant section skills for the task:
 ## Implementation Order (always follow this sequence)
 
 1. **Domain model** — data classes, sealed interfaces (no Android dependencies)
-2. **Data layer** — DAO, API interface, DTO, mappers
-3. **Repository** — interface + implementation
-4. **ViewModel** — UI state, events, business logic orchestration
-5. **UI** — Composable screen, wired to ViewModel
-6. **DI module** — bind everything together
-7. **Tests** — unit tests for ViewModel + Repository, UI test for the happy path
+2. **Repository interface** — define the contract in the domain layer (no implementation yet)
+3. **Use Cases** — one class per operation; inject the repository interface; contain all business logic
+4. **Data layer** — DAO, API interface, DTO, mappers, repository implementation
+5. **ViewModel** — UI state, events; calls Use Cases only — never Repository directly
+6. **UI** — Composable screen, wired to ViewModel
+7. **DI module** — bind repository implementations, Use Cases are auto-provided via `@Inject`
+8. **Tests** — unit tests for ViewModel + Use Cases + Repository, UI test for the happy path
 
 ## Code Standards
 

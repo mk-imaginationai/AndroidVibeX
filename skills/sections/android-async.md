@@ -63,15 +63,19 @@ class FileRepository @Inject constructor(
 ### Coroutines — Parallel execution
 
 ```kotlin
-suspend fun loadDashboard(): DashboardData = coroutineScope {
-    val userDeferred = async { userRepository.getCurrentUser() }
-    val statsDeferred = async { statsRepository.getStats() }
-    DashboardData(
-        user = userDeferred.await().getOrThrow(),
-        stats = statsDeferred.await().getOrThrow()
-    )
+suspend fun loadDashboard(): Result<DashboardData> = runCatching {
+    coroutineScope {
+        val userDeferred = async { userRepository.getCurrentUser().getOrThrow() }
+        val statsDeferred = async { statsRepository.getStats().getOrThrow() }
+        DashboardData(
+            user = userDeferred.await(),
+            stats = statsDeferred.await()
+        )
+    }
 }
 ```
+
+The outer `runCatching` catches any exception thrown by `getOrThrow()` inside the `coroutineScope`, so the Repository boundary contract (no raw exceptions reaching the ViewModel) is preserved.
 
 ### WorkManager — One-time background task
 

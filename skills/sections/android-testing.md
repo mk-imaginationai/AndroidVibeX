@@ -9,7 +9,7 @@ description: Use when writing JUnit unit tests, Espresso UI tests, or setting up
 
 | Test type | Tool | What to test | Speed |
 |---|---|---|---|
-| **Unit** | JUnit 4 + MockK | ViewModel, Repository, UseCases | Fast (JVM) |
+| **Unit** | JUnit 4 + Fakes (MockK for complex interactions) | ViewModel, Repository, UseCases | Fast (JVM) |
 | **Integration** | JUnit + Room in-memory | Repository + DAO | Medium |
 | **UI** | Espresso / Compose Testing | User flows end-to-end | Slow (device) |
 
@@ -155,7 +155,12 @@ class HomeScreenTest {
 
 ### Compose UI test
 
+Pass state and lambdas directly — never a ViewModel. Composables that accept a ViewModel cannot be tested without instantiating it; Composables that accept state can be tested with any value.
+
 ```kotlin
+// HomeScreen signature for testability:
+// @Composable fun HomeScreen(uiState: HomeUiState, onItemClick: (String) -> Unit)
+
 @RunWith(AndroidJUnit4::class)
 class HomeScreenComposeTest {
 
@@ -165,7 +170,10 @@ class HomeScreenComposeTest {
     @Test
     fun showsLoadingInitially() {
         composeTestRule.setContent {
-            HomeScreen(viewModel = FakeHomeViewModel(HomeUiState.Loading))
+            HomeScreen(
+                uiState = HomeUiState.Loading,
+                onItemClick = {}
+            )
         }
         composeTestRule.onNodeWithTag("loading_indicator").assertIsDisplayed()
     }
@@ -174,19 +182,78 @@ class HomeScreenComposeTest {
     fun showsItemsOnSuccess() {
         val items = listOf(Item(id = "1", title = "Test Item"))
         composeTestRule.setContent {
-            HomeScreen(viewModel = FakeHomeViewModel(HomeUiState.Success(items)))
+            HomeScreen(
+                uiState = HomeUiState.Success(items),
+                onItemClick = {}
+            )
         }
         composeTestRule.onNodeWithText("Test Item").assertIsDisplayed()
     }
 }
 ```
 
+### Flow testing with Turbine
+
+Use Turbine (`app.cash.turbine:turbine`) to assert on emitted Flow values without manual coroutine plumbing.
+
+```kotlin
+// build.gradle.kts
+// testImplementation("app.cash.turbine:turbine:1.1.0")
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class HomeViewModelFlowTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    private val fakeRepository = FakeItemRepository()
+    private lateinit var viewModel: HomeViewModel
+
+    @Before
+    fun setup() {
+        viewModel = HomeViewModel(GetItemsUseCase(fakeRepository))
+    }
+
+    @Test
+    fun `uiState emits Loading then Success`() = runTest {
+        val items = listOf(Item(id = "1", title = "Test"))
+        fakeRepository.setItems(items)
+
+        viewModel.uiState.test {
+            // Initial state from MutableStateFlow initialValue
+            assertIs<HomeUiState.Loading>(awaitItem())
+
+            viewModel.loadItems()
+            assertIs<HomeUiState.Success>(awaitItem()).also { success ->
+                assertEquals(items, success.items)
+            }
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `uiState emits Error when repository fails`() = runTest {
+        fakeRepository.setShouldThrow(true)
+
+        viewModel.uiState.test {
+            awaitItem() // Loading
+            viewModel.loadItems()
+            assertIs<HomeUiState.Error>(awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+}
+```
+
+Use `cancelAndIgnoreRemainingEvents()` at the end of every Turbine block — it closes the subscription cleanly and prevents test hangs.
+
 ---
 
 ## Guardrails
 
 ### DO
-- Use fake implementations (not mocks) for Repository in ViewModel tests — fakes are more reliable.
+- Prefer fake implementations for Repository in ViewModel tests — fakes verify behavior through state, not interaction. Use MockK when you need to assert that a specific method was called a specific number of times (e.g., verifying an analytics event fires exactly once).
 - Use `runTest` from `kotlinx-coroutines-test` for all coroutine-based tests.
 - Use `MainDispatcherRule` in every ViewModel test that touches `Dispatchers.Main`.
 - Test ViewModels in isolation — inject fakes, not real implementations.
