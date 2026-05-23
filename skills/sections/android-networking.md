@@ -93,6 +93,13 @@ object NetworkModule {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(client)
+            // Prefer kotlinx.serialization (reflection-free, R8-safe, idiomatic Kotlin):
+            // .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            // Requires: implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+            //           implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+            // And annotate DTOs with @Serializable instead of relying on Gson reflection.
+            //
+            // Gson (simpler setup, but reflection-based — add R8 keep rules for DTO fields):
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -133,6 +140,34 @@ if (response.hasErrors()) {
     error(response.errors?.first()?.message ?: "GraphQL error")
 }
 val items = response.data?.items?.map { it.toDomain() } ?: emptyList()
+```
+
+### kotlinx.serialization — R8-safe DTO pattern (recommended)
+
+Gson uses reflection and breaks under R8 minification without keep rules. Prefer `kotlinx.serialization`:
+
+```kotlin
+// build.gradle.kts
+// plugins { kotlin("plugin.serialization") }
+// implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
+@Serializable
+data class ItemDto(
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+    @SerialName("created_at") val createdAt: Long
+)
+
+// Retrofit converter:
+val json = Json { ignoreUnknownKeys = true }
+Retrofit.Builder()
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+```
+
+**Why**: No reflection → R8-safe by default. Compile-time serialization errors. Kotlin-idiomatic.
+If using Gson, add to `proguard-rules.pro`:
+```
+-keepclassmembers class com.example.** { @com.google.gson.annotations.SerializedName <fields>; }
 ```
 
 ---

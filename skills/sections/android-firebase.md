@@ -25,22 +25,35 @@ Always add `google-services.json` to `app/` (never commit secrets in it to publi
 
 ### Firebase Auth — Sign in with Google
 
+> **Note:** The legacy `GoogleSignInClient` API is deprecated. Use the Credential Manager API shown below.
+
 ```kotlin
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val googleSignInClient: GoogleSignInClient
+    private val credentialManager: CredentialManager,
+    @ApplicationContext private val context: Context
 ) {
     val currentUser: FirebaseUser? get() = firebaseAuth.currentUser
 
-    suspend fun signInWithGoogle(idToken: String): Result<FirebaseUser> = runCatching {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        val result = firebaseAuth.signInWithCredential(credential).await()
-        result.user ?: error("Auth succeeded but user is null")
+    // Requires: implementation("androidx.credentials:credentials:1.3.0")
+    //           implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    //           implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    suspend fun signInWithGoogle(webClientId: String): Result<FirebaseUser> = runCatching {
+        val googleIdOption = GetSignInWithGoogleOption.Builder(webClientId)
+            .build()
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+        val result = credentialManager.getCredential(context, request)
+        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
+        val credential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+        val authResult = firebaseAuth.signInWithCredential(credential).await()
+        authResult.user ?: error("Auth succeeded but user is null")
     }
 
     suspend fun signOut() {
         firebaseAuth.signOut()
-        googleSignInClient.signOut().await()
+        credentialManager.clearCredentialState(ClearCredentialStateRequest())
     }
 }
 ```

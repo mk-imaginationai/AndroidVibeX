@@ -126,6 +126,30 @@ val items: StateFlow<List<Item>> = repository.observeItems()
     )
 ```
 
+### SavedStateHandle — Survive process death
+
+```kotlin
+@HiltViewModel
+class FormViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val repository: FormRepository
+) : ViewModel() {
+
+    // Survives both rotation AND process death
+    var userInput: String
+        get() = savedStateHandle["user_input"] ?: ""
+        set(value) { savedStateHandle["user_input"] = value }
+
+    // StateFlow backed by SavedStateHandle — survives process death
+    val formData: StateFlow<String> = savedStateHandle.getStateFlow("user_input", "")
+}
+```
+
+Key distinction:
+- `ViewModel` survives **rotation** (configuration change)
+- `SavedStateHandle` survives **process death** (low memory, system kill)
+- Use `SavedStateHandle` for: navigation arguments, user-entered data, selected items, scroll position
+
 ### LiveData — Only use if project predates Flow adoption
 
 ```kotlin
@@ -178,6 +202,7 @@ data class NotificationConfig(
 - Use `@HiltViewModel` — never instantiate ViewModels manually with `ViewModelProvider.Factory` unless Hilt cannot be used.
 - Use `Result<T>` (`runCatching`) for wrapping Repository results.
 - Bind interfaces in Hilt with `@Binds` — use `@Provides` only for third-party classes.
+- Use `SavedStateHandle` in ViewModels that hold data that must survive process death (navigation args, user-entered form data) — inject it via `@HiltViewModel` constructor.
 
 ### DON'T
 - Don't use `LiveData` for new code — use `StateFlow`.
@@ -185,6 +210,7 @@ data class NotificationConfig(
 - Don't expose `MutableStateFlow` from ViewModel — always expose `StateFlow`.
 - Don't put network calls or database access directly in ViewModel — always via Repository.
 - Don't use `GlobalScope` — it's not lifecycle-aware and leaks.
+- Don't assume ViewModel state survives process death — it doesn't. ViewModel survives rotation but is destroyed when Android kills the process for memory. Use `SavedStateHandle` for critical state.
 
 ---
 

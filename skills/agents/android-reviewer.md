@@ -50,6 +50,14 @@ Run through this checklist for every review:
 - [ ] Sensitive data not logged (no `Timber.d("token: $token")`)?
 - [ ] Exported activities/services require appropriate permissions?
 
+### Code Quality
+- [ ] No `!!` operator used? (use `?.let`, `?: return`, or `requireNotNull()` instead)
+- [ ] No `Log.d/e/w/i` calls? (use `Timber.*` only)
+- [ ] No `LiveData` in new code? (use `StateFlow`)
+- [ ] No `SharedPreferences` in new code? (use `DataStore`)
+- [ ] No `.fallbackToDestructiveMigration()` in Room setup without migration strategy?
+- [ ] No magic numbers or hardcoded strings? (use constants or string resources)
+
 ## Output format
 
 For each finding, always write:
