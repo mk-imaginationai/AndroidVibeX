@@ -92,8 +92,15 @@ fun provideRemoteConfig(): FirebaseRemoteConfig =
 ```kotlin
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+
     override fun onNewToken(token: String) {
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+        serviceScope.launch {
             tokenRepository.updateToken(token)
         }
     }
@@ -108,6 +115,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun showNotification(title: String, body: String) {
+        // Ensure channel is created before notifying (create in Application.onCreate())
         val notificationManager = getSystemService(NotificationManager::class.java)
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
@@ -118,6 +126,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 }
+// Note: Inject tokenRepository via Hilt using @AndroidEntryPoint on this service
+// and @Inject constructor on the repository, or use WorkManager for token upload
+// to guarantee delivery even if the service is destroyed mid-call.
 ```
 
 ### Firestore — CRUD with coroutines

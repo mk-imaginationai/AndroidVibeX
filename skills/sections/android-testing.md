@@ -9,7 +9,7 @@ description: Use when writing JUnit unit tests, Espresso UI tests, or setting up
 
 | Test type | Tool | What to test | Speed |
 |---|---|---|---|
-| **Unit** | JUnit 5 + MockK | ViewModel, Repository, UseCases | Fast (JVM) |
+| **Unit** | JUnit 4 + MockK | ViewModel, Repository, UseCases | Fast (JVM) |
 | **Integration** | JUnit + Room in-memory | Repository + DAO | Medium |
 | **UI** | Espresso / Compose Testing | User flows end-to-end | Slow (device) |
 
@@ -31,7 +31,7 @@ class HomeViewModelTest {
     private val fakeRepository = FakeItemRepository()
     private lateinit var viewModel: HomeViewModel
 
-    @BeforeEach
+    @Before
     fun setup() {
         viewModel = HomeViewModel(fakeRepository)
     }
@@ -197,7 +197,7 @@ class HomeScreenComposeTest {
 - Don't use `Thread.sleep()` in tests — use `runTest` coroutine control.
 - Don't test implementation details (private methods, internal state) — test observable behavior.
 - Don't skip the `@After` teardown — always close in-memory databases.
-- Don't share ViewModel instances between tests — recreate in `@BeforeEach`.
+- Don't share ViewModel instances between tests — recreate in `@Before`.
 
 ---
 
