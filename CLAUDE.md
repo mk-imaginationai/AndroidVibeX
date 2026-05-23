@@ -4,7 +4,7 @@ These rules apply to every task in this project. They encode senior Android engi
 
 ## Language
 - Always Kotlin. Never Java for new code.
-- Use Kotlin idioms: data classes, sealed classes, extension functions, scope functions (`let`, `apply`, `run`, `also`).
+- Use Kotlin idioms: data classes, sealed classes, extension functions, scope functions. Prefer `let` for null-safe chaining, `apply` for object initialization/mutation, `run` for scoped computation, `also` for side effects.
 - Prefer `val` over `var`. Immutability by default.
 - Never use `!!`. Use `?.let`, `?: return`, or `requireNotNull()` with a message.
 
@@ -13,7 +13,7 @@ These rules apply to every task in this project. They encode senior Android engi
 - ViewModel holds UI state. Never put business logic in Activity/Fragment/Composable.
 - Repository is the single source of truth. It abstracts data sources (remote + local).
 - Use sealed classes or sealed interfaces for UI state (`Loading`, `Success`, `Error`).
-- One ViewModel per screen. Never share ViewModels across unrelated screens.
+- One primary ViewModel per screen for UI state. Shared/utility ViewModels for cross-screen concerns are acceptable if scoped appropriately.
 
 ## Threading
 - All async work uses Kotlin Coroutines. Never use `Thread`, `AsyncTask`, `Handler`, or RxJava.
@@ -28,7 +28,7 @@ These rules apply to every task in this project. They encode senior Android engi
 
 ## UI
 - Jetpack Compose is preferred for all new UI.
-- XML Views are accepted in existing projects. Do not mix Compose and XML without justification.
+- XML Views are accepted in existing projects. Do not mix Compose and XML within the same screen without justification; screen-level interop during migration is acceptable.
 - Never call UI methods from a background thread.
 - Always use `collectAsStateWithLifecycle()` (not `collectAsState()`) for Flow in Compose.
 
