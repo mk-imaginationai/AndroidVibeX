@@ -46,6 +46,14 @@ Run through this checklist for every review:
 - [ ] Repository tests use fakes (not mocks) unless interaction verification is explicitly needed?
 - [ ] `MainDispatcherRule` present in ViewModel tests?
 
+### Performance
+- [ ] UI state classes annotated `@Immutable` or using `ImmutableList` (not plain `List<T>`)?
+- [ ] `derivedStateOf` used for values computed from state that change less often than source?
+- [ ] `remember(key)` used for expensive calculations inside Composables?
+- [ ] `LazyColumn`/`LazyRow` items have stable `key` lambdas (not index)?
+- [ ] Remote images loaded via Coil or Glide — no manual `BitmapFactory` for remote URLs?
+- [ ] No file/database access inside a Composable body?
+
 ### Security
 - [ ] No hardcoded API keys or secrets in code?
 - [ ] Sensitive data not logged (no `Timber.d("token: $token")`)?

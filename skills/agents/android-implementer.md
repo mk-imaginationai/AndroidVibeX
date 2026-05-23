@@ -22,6 +22,7 @@ Load the relevant section skills for the task:
 - Persisting data? → `android-storage`
 - Background work? → `android-async`
 - Wiring DI? → `android-architecture`
+- Lists, images, or startup-sensitive screens? → `android-performance`
 
 ## Implementation Order (always follow this sequence)
 

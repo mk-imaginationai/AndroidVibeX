@@ -87,3 +87,4 @@ HomeScreen ← collectAsStateWithLifecycle()
 - Never let the View layer own business logic.
 - Always establish data flow direction before anyone writes code.
 - If a feature needs >3 section skills, consider whether it should be split into sub-features.
+- For any feature involving lists, images, or app startup: include `android-performance` in the section skills list and note the specific performance concerns (recomposition, image loading, cold start).
