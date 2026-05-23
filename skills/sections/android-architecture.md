@@ -12,7 +12,9 @@ description: Use when designing app architecture, choosing between MVVM/MVP/MVC/
 - **View** — UI layer (Activity, Fragment, Composable) — observes state, emits events
 - **ViewModel** — state holder — processes events, exposes UI state via Flow/StateFlow
 
-**Repository pattern** sits between ViewModel and data sources. It decides whether to fetch from network or cache.
+**Use Cases** (domain layer) sit between ViewModel and Repository. Each Use Case encapsulates one operation. ViewModel injects Use Cases — never Repositories directly.
+
+**Repository pattern** sits between Use Cases and data sources. It decides whether to fetch from network or cache.
 
 **Other patterns:**
 - **MVI** — unidirectional data flow, single immutable state object, good for complex screens
@@ -228,8 +230,8 @@ abstract class RepositoryModule {
 ### Flow — Collect in ViewModel
 
 ```kotlin
-// Emit continuous updates from Room
-val items: StateFlow<List<Item>> = repository.observeItems()
+// ObserveItemsUseCase wraps repository.observeItems(): Flow<List<Item>>
+val items: StateFlow<List<Item>> = observeItems()
     .stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -243,7 +245,7 @@ val items: StateFlow<List<Item>> = repository.observeItems()
 @HiltViewModel
 class FormViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: FormRepository
+    private val submitForm: SubmitFormUseCase
 ) : ViewModel() {
 
     // Survives both rotation AND process death
@@ -319,7 +321,8 @@ data class NotificationConfig(
 - Don't use `LiveData` for new code — use `StateFlow`.
 - Don't call `suspend` functions directly from `init {}` without `viewModelScope.launch`.
 - Don't expose `MutableStateFlow` from ViewModel — always expose `StateFlow`.
-- Don't put network calls or database access directly in ViewModel — always via Repository.
+- Don't put network calls or database access directly in ViewModel — always via Use Case.
+- Don't inject Repository directly into ViewModel — inject Use Cases. ViewModels that hold a direct Repository reference bypass the domain layer and cannot be tested without a real Repository.
 - Don't use `GlobalScope` — it's not lifecycle-aware and leaks.
 - Don't assume ViewModel state survives process death — it doesn't. ViewModel survives rotation but is destroyed when Android kills the process for memory. Use `SavedStateHandle` for critical state.
 

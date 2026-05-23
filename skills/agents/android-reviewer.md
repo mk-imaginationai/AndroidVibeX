@@ -24,6 +24,7 @@ Run through this checklist for every review:
 - [ ] Repository returns `Result<T>` or sealed class — never throws raw exceptions to ViewModel?
 - [ ] No business logic in Activity, Fragment, or Composable?
 - [ ] No direct database/network calls from ViewModel?
+- [ ] ViewModel injects Use Cases, not Repository directly?
 
 ### Threading
 - [ ] No IO/network on `Dispatchers.Main`?
