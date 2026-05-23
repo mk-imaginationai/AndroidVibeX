@@ -115,6 +115,32 @@ class SyncService : Service() {
 }
 ```
 
+### Foreground Service — user-visible long-running work
+
+Declare in `AndroidManifest.xml`:
+```xml
+<service
+    android:name=".SyncService"
+    android:foregroundServiceType="dataSync"
+    android:exported="false" />
+```
+
+Required permissions:
+```xml
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+```
+
+Start with type parameter (required API 34+):
+```kotlin
+val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+    .setContentTitle("Syncing")
+    .setSmallIcon(R.drawable.ic_sync)
+    .build()
+
+startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+```
+
 ### Broadcast Receiver — React to network changes
 
 ```kotlin
@@ -136,13 +162,71 @@ registerReceiver(receiver, filter)
 unregisterReceiver(receiver)
 ```
 
+### Fragment — Lifecycle-aware setup with Compose
+
+```kotlin
+@AndroidEntryPoint
+class HomeFragment : Fragment() {
+
+    private val viewModel: HomeViewModel by viewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            MyAppTheme {
+                HomeScreen(viewModel = viewModel)
+            }
+        }
+    }
+}
+```
+
+Key Fragment lifecycle note: use `viewLifecycleOwner` (not `this`) when observing in Fragments — the View has a shorter lifecycle than the Fragment itself.
+
+### Content Provider — Expose data to other apps
+
+```kotlin
+class ItemsProvider : ContentProvider() {
+
+    override fun query(
+        uri: Uri, projection: Array<String>?, selection: String?,
+        selectionArgs: Array<String>?, sortOrder: String?
+    ): Cursor? {
+        requireNotNull(context).checkCallingPermission(READ_PERMISSION).let { result ->
+            if (result != PackageManager.PERMISSION_GRANTED) return null
+        }
+        // query and return cursor
+        return null
+    }
+
+    override fun getType(uri: Uri): String = "vnd.android.cursor.dir/vnd.com.example.items"
+    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int = 0
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int = 0
+    override fun onCreate(): Boolean = true
+}
+```
+
+Declare in manifest with permissions:
+```xml
+<provider
+    android:name=".ItemsProvider"
+    android:authorities="com.example.app.provider"
+    android:exported="true"
+    android:readPermission="com.example.app.READ_ITEMS" />
+```
+
 ---
 
 ## Guardrails
 
 ### DO
 - Use `ViewModel` to survive configuration changes — never store UI data in Activity fields.
-- Always check `intent.resolveActivity(packageManager) != null` before firing implicit intents.
+- Always check `intent.resolveActivity(packageManager) != null` before firing implicit intents. Prefer explicit intents where possible — implicit intents can be intercepted by other apps.
 - Use `lifecycleScope` for coroutines launched from Activity/Fragment.
 - Declare only the permissions you need in the manifest.
 - Prefer `registerReceiver()` at runtime over manifest registration for dynamic events.
@@ -151,7 +235,7 @@ unregisterReceiver(receiver)
 ### DON'T
 - Don't put business logic in `Activity` or `Fragment` — delegate to `ViewModel`.
 - Don't start a `Service` for short background tasks — use `WorkManager` or coroutines.
-- Don't ignore `onStop`/`onDestroy` — release resources, cancel jobs, unregister receivers.
+- Don't ignore `onStop`/`onDestroy` — release resources, cancel jobs, unregister receivers. In a Service, always cancel the `CoroutineScope` in `onDestroy()` — see the Service example above.
 - Don't use `startActivityForResult` — use the Activity Result API (`registerForActivityResult`).
 - Don't pass large objects via Intent extras — use a shared ViewModel or Repository.
 - Don't call `finish()` in `onCreate` without showing UI — handle this in the ViewModel state.
