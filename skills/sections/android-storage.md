@@ -52,6 +52,14 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
 }
 
+// app/build.gradle.kts — export schema to version control (required with exportSchema = true)
+// Use KSP argument; the room { schemaDirectory() } block requires the Room Gradle Plugin
+// ksp {
+//     arg("room.schemaLocation", "$projectDir/schemas")
+// }
+// Also use compilerOptions (not kotlinOptions — deprecated in AGP 8.7+):
+// kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_11) } }
+
 // Hilt provision
 @Module
 @InstallIn(SingletonComponent::class)
