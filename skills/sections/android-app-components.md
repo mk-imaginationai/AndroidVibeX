@@ -133,11 +133,26 @@ Required permissions:
 
 Start with type parameter (required API 34+):
 ```kotlin
+// Create notification channel (required API 26+) — do this in Application.onCreate()
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    val channel = NotificationChannel(
+        CHANNEL_ID,
+        "Sync Service",
+        NotificationManager.IMPORTANCE_LOW
+    )
+    getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+}
+
+// Request POST_NOTIFICATIONS permission at runtime (required API 33+) before starting service
+// ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), RC)
+
 val notification = NotificationCompat.Builder(this, CHANNEL_ID)
     .setContentTitle("Syncing")
     .setSmallIcon(R.drawable.ic_sync)
+    .setOngoing(true)
     .build()
 
+// Must call startForeground() within 5 seconds of onStartCommand() — call it first, before launching coroutines
 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
 ```
 
@@ -153,11 +168,23 @@ class NetworkReceiver : BroadcastReceiver() {
 }
 ```
 
-Register dynamically (preferred over manifest for runtime receivers):
+Modern network monitoring (API 21+) uses NetworkCallback. If using BroadcastReceiver (legacy), API 34+ requires exported flag:
 ```kotlin
+// Modern approach (API 21+): NetworkCallback instead of BroadcastReceiver
+val connectivityManager = getSystemService(ConnectivityManager::class.java)
+val networkCallback = object : ConnectivityManager.NetworkCallback() {
+    override fun onAvailable(network: Network) { /* network connected */ }
+    override fun onLost(network: Network) { /* network lost */ }
+}
+connectivityManager.registerDefaultNetworkCallback(networkCallback)
+// unregister in onDestroy
+connectivityManager.unregisterNetworkCallback(networkCallback)
+
+// If you still need BroadcastReceiver for legacy reasons (API < 21):
 val receiver = NetworkReceiver()
 val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-registerReceiver(receiver, filter)
+// API 34+ requires explicit exported flag for dynamic receivers
+ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 // unregister in onDestroy
 unregisterReceiver(receiver)
 ```

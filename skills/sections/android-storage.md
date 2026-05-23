@@ -60,7 +60,8 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, "app.db")
-            .fallbackToDestructiveMigration()
+            // Add .addMigrations(MIGRATION_X_Y) for each schema version change
+            // Never use .fallbackToDestructiveMigration() in production — it silently deletes user data
             .build()
 
     @Provides
