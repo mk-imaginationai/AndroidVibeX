@@ -2,7 +2,7 @@
 
 Production-grade Android development skills for [Claude Code](https://claude.ai/code).
 
-Covers Kotlin, Jetpack Compose, Material 3, Clean Architecture, Hilt, Room, Retrofit, WorkManager, CameraX, and more — with a working example app ([VibeTasks](https://github.com/mk-imaginationai/VibeTasks)).
+Covers Kotlin, Jetpack Compose, Material 3, Clean Architecture, Hilt, Room, Retrofit, WorkManager, CameraX, and more 
 
 ## Install
 
@@ -62,9 +62,6 @@ Section skills can also be loaded manually for reference:
 | `android-ui-layouts` | XML layouts, ConstraintLayout, Fragments, App Shortcuts |
 | `android-code-quality` | Lint, Detekt, StrictMode, LeakCanary |
 
-## Example project
-
-VibeTasks demonstrates every skill in a working Android app. See `VibeTasks/` in this repo or the standalone repo.
 
 ## Rules
 
