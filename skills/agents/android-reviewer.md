@@ -35,9 +35,10 @@ Run through this checklist for every review:
 - [ ] `collectAsStateWithLifecycle()` used — not `collectAsState()`?
 - [ ] NavController not passed into Composables?
 - [ ] No logic beyond rendering and event forwarding in Composables?
-- [ ] No hardcoded `Color(0xFF...)` in Composables? (use `MaterialTheme.colorScheme.*` tokens)
+- [ ] No hardcoded `Color(0xFF...)` literals at composable call sites? (define in `Color.kt`, access via `MaterialTheme.colorScheme.*`)
 - [ ] `Scaffold` used for screens with TopAppBar/BottomBar/FAB — `innerPadding` applied to content?
 - [ ] `Surface`/`Card` used for elevated containers — not raw `Box + background`?
+- [ ] ViewModel state exposed as `StateFlow`, not `mutableStateOf`? (`mutableStateOf` in a ViewModel bypasses lifecycle-aware collection)
 
 ### Lifecycle
 - [ ] BroadcastReceivers unregistered in `onStop`/`onDestroy`?

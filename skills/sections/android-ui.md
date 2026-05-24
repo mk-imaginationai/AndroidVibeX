@@ -13,7 +13,7 @@ description: Use when building UI with Jetpack Compose and Material 3. Covers Ma
 | **Typography** | Text styles (`displayLarge` → `labelSmall`) with custom fonts |
 | **Shapes** | Corner radii across 5 size buckets (`extraSmall` → `extraLarge`) |
 | **Dynamic Color** | Wallpaper-derived palette on Android 12+ (`Build.VERSION_CODES.S`) |
-| **WindowSizeClass** | Adaptive breakpoints — `Compact`, `Medium`, `Expanded` |
+| **WindowAdaptiveInfo** | Adaptive breakpoints from `currentWindowAdaptiveInfo()` — `COMPACT`, `MEDIUM`, `EXPANDED` |
 
 ---
 
@@ -23,6 +23,7 @@ description: Use when building UI with Jetpack Compose and Material 3. Covers Ma
 
 ```kotlin
 // ui/theme/Color.kt — brand seeds from Material Theme Builder
+// Define named constants here; reference them only through MaterialTheme.colorScheme.* in composables
 val BrandPrimary = Color(0xFF6750A4)
 val BrandSecondary = Color(0xFF625B71)
 val BrandTertiary = Color(0xFF7D5260)
@@ -73,9 +74,10 @@ fun AppTheme(
     dynamicColor: Boolean = true,   // disable to always use brand palette
     content: @Composable () -> Unit
 ) {
+    // Hoist LocalContext.current unconditionally — CompositionLocal reads must not be conditional
+    val context = LocalContext.current
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context)
             else dynamicLightColorScheme(context)
         }
@@ -187,14 +189,20 @@ Use `LargeTopAppBar` / `MediumTopAppBar` with `exitUntilCollapsedScrollBehavior(
 ### Navigation Bar vs Navigation Rail (Adaptive)
 
 ```kotlin
+// NavItem definition — put in ui/navigation/NavItem.kt
+data class NavItem(val label: String, val icon: ImageVector)
+
 @Composable
 fun AdaptiveNavigation(
-    windowSizeClass: WindowSizeClass,
+    navItems: List<NavItem>,        // pass from the call site
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     content: @Composable () -> Unit
 ) {
-    val useRail = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
+    // currentWindowAdaptiveInfo() replaces the deprecated calculateWindowSizeClass()
+    // Requires: implementation("androidx.window:window:1.3.0") or compose-bom 2024.09+
+    val windowAdaptiveInfo = currentWindowAdaptiveInfo()
+    val useRail = windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
 
     if (useRail) {
         Row {
@@ -228,19 +236,21 @@ fun AdaptiveNavigation(
 }
 ```
 
-Obtain `WindowSizeClass` in your Activity:
+Call from your Activity:
 
 ```kotlin
-// build.gradle.kts — included with compose-bom 2024+
-// implementation("androidx.compose.material3:material3-window-size-class")
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()  // required before setContent for correct insets on API 35+
         setContent {
-            val windowSizeClass = calculateWindowSizeClass(this)
             AppTheme {
-                AdaptiveNavigation(windowSizeClass = windowSizeClass, ...) { /* ... */ }
+                // currentWindowAdaptiveInfo() is called inside AdaptiveNavigation
+                AdaptiveNavigation(
+                    navItems = appNavItems,
+                    selectedIndex = 0,
+                    onSelect = { /* ... */ }
+                ) { /* screen content */ }
             }
         }
     }
@@ -257,6 +267,8 @@ fun FilterSheet(
     onApply: (FilterOptions) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Declare filter state before the sheet so it's in scope for the Apply button
+    var options by remember { mutableStateOf(FilterOptions()) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -269,7 +281,7 @@ fun FilterSheet(
         ) {
             Text("Filter", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(16.dp))
-            // filter content
+            // render filter controls that update `options` via copy()
             Button(onClick = { onApply(options) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Apply")
             }
@@ -304,34 +316,40 @@ FilledIconButton(onClick = { }) { Icon(Icons.Default.Add, contentDescription = "
 ### Text Fields
 
 ```kotlin
-// Filled (default) — use inside forms on surface backgrounds
-var value by remember { mutableStateOf("") }
-TextField(
-    value = value,
-    onValueChange = { value = it },
-    label = { Text("Title") },
-    supportingText = { if (value.isBlank()) Text("Required") },
-    isError = value.isBlank(),
-    singleLine = true,
-    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-    modifier = Modifier.fillMaxWidth(),
-)
+@Composable
+fun FormFields() {
+    // Filled (default) — use inside forms on surface backgrounds
+    var title by remember { mutableStateOf("") }
+    TextField(
+        value = title,
+        onValueChange = { title = it },
+        label = { Text("Title") },
+        supportingText = { if (title.isBlank()) Text("Required") },
+        isError = title.isBlank(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        modifier = Modifier.fillMaxWidth(),
+    )
 
-// Outlined — use when the field needs to stand out against a non-surface background
-OutlinedTextField(
-    value = value,
-    onValueChange = { value = it },
-    label = { Text("Search") },
-    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-    trailingIcon = {
-        if (value.isNotEmpty()) {
-            IconButton(onClick = { value = "" }) {
-                Icon(Icons.Default.Clear, contentDescription = "Clear")
+    Spacer(Modifier.height(8.dp))
+
+    // Outlined — use when the field needs to stand out against a non-surface background
+    var query by remember { mutableStateOf("") }
+    OutlinedTextField(
+        value = query,
+        onValueChange = { query = it },
+        label = { Text("Search") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { query = "" }) {
+                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                }
             }
-        }
-    },
-    modifier = Modifier.fillMaxWidth(),
-)
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
 ```
 
 ---
@@ -340,20 +358,24 @@ OutlinedTextField(
 
 ### DO
 - Wrap your app in `AppTheme` in `MainActivity` — never call `MaterialTheme(...)` directly outside a theme composable.
-- Use `MaterialTheme.colorScheme.*` tokens everywhere — no hardcoded `Color(0xFF...)` in composables.
+- Define brand colors as named constants in `Color.kt`; use `MaterialTheme.colorScheme.*` tokens at call sites in composables — never raw `Color(0xFF...)` inline in a composable.
 - Provide both `LightColorScheme` and `DarkColorScheme`; test both in `@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)`.
 - Use `contentColorFor(containerColor)` to derive text/icon color on any colored surface.
 - Use `Scaffold` for screens with a `TopAppBar`, `BottomBar`, or `FloatingActionButton` — it wires up `innerPadding` and `WindowInsets` correctly.
+- Call `enableEdgeToEdge()` in `Activity.onCreate` **before** `setContent` — required for correct system bar insets on API 35+.
 - Generate brand color palettes with [Material Theme Builder](https://m3.material.io/theme-builder) to ensure accessible contrast ratios.
 - Use `skipPartiallyExpanded = true` on `ModalBottomSheet` unless you explicitly want a half-expanded state.
+- Always hoist `LocalContext.current` reads to the top of the composable — `CompositionLocal` reads must be unconditional.
+- For UI state data classes that contain `List<T>` fields, annotate with `@Immutable` and use `ImmutableList<T>` to prevent unnecessary recompositions — see `android-performance` for details.
 
 ### DON'T
-- Don't hardcode colors (`Color.Blue`, `Color.White`) in composables — always use color scheme roles.
+- Don't use raw `Color(0xFF...)` literals in composable bodies — define them as named constants in `Color.kt` and always access via `MaterialTheme.colorScheme.*` in composables.
 - Don't use `shadowElevation` as the primary depth signal in M3 — use `tonalElevation` for the surface tint effect.
 - Don't pass `NavController` into composables — pass lambda callbacks; `NavController` in a composable makes it untestable.
 - Don't use `NavigationBar` on `Expanded` windows — switch to `NavigationRail` or `NavigationDrawer`.
 - Don't use `mutableStateOf` in a `ViewModel` — use `MutableStateFlow` and collect with `collectAsStateWithLifecycle()` in Compose.
-- Don't ignore `innerPadding` from `Scaffold` — passing it to `contentPadding` (LazyColumn) or `padding` (Column) prevents content hiding behind system bars.
+- Don't ignore `innerPadding` from `Scaffold` — pass it to `contentPadding` (LazyColumn) or `Modifier.padding()` (Column) to prevent content hiding behind system bars.
+- Don't use `calculateWindowSizeClass()` — it is deprecated. Use `currentWindowAdaptiveInfo()` from `androidx.window:window 1.3+`.
 
 ---
 
@@ -362,5 +384,6 @@ OutlinedTextField(
 - [Material Theme Builder](https://m3.material.io/theme-builder)
 - [ColorScheme reference](https://developer.android.com/reference/kotlin/androidx/compose/material3/ColorScheme)
 - [Typography reference](https://developer.android.com/reference/kotlin/androidx/compose/material3/Typography)
-- [WindowSizeClass](https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes)
+- [WindowAdaptiveInfo / currentWindowAdaptiveInfo](https://developer.android.com/reference/kotlin/androidx/window/layout/WindowAdaptiveInfo)
 - [Compose Material 3 components](https://developer.android.com/jetpack/compose/designsystems/material3)
+- [enableEdgeToEdge](https://developer.android.com/develop/ui/views/layout/edge-to-edge)

@@ -1,7 +1,9 @@
 ---
 name: android-ui-layouts
-description: Use when working with Jetpack Compose, Fragments, ConstraintLayout (XML or Compose), TextView, ImageView, App Shortcuts, or Navigation Components.
+description: Use when working with Fragments, ConstraintLayout (XML), TextView, ImageView, App Shortcuts, or Navigation Components in XML-based Views. For Jetpack Compose and Material 3, use android-ui instead.
 ---
+
+> **Deprecated for Compose work.** This skill covers XML Views only. For Jetpack Compose, Material 3 theming, and adaptive layouts use `android-ui`.
 
 # Android UI & Layouts
 
