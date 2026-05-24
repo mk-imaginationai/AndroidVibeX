@@ -96,7 +96,7 @@ description: <one-line trigger description>
 ## File Structure
 
 ```
-xAndroidVide/
+AndroidVibeX/
 ├── CLAUDE.md                              ← copy into any Android project
 ├── skills/
 │   ├── sections/

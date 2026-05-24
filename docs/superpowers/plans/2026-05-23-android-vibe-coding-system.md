@@ -102,14 +102,14 @@ These rules apply to every task in this project. They encode senior Android engi
 - [ ] **Step 2: Verify**
 
 ```bash
-grep -c "^##" /Users/kashif/Documents/xAndroidVide/CLAUDE.md
+grep -c "^##" /Users/kashif/Documents/AndroidVibeX/CLAUDE.md
 ```
 Expected: `9` (9 section headers)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/kashif/Documents/xAndroidVide && git init && git add CLAUDE.md && git commit -m "feat: add global Android rules CLAUDE.md"
+cd /Users/kashif/Documents/AndroidVibeX && git init && git add CLAUDE.md && git commit -m "feat: add global Android rules CLAUDE.md"
 ```
 
 ---
@@ -295,7 +295,7 @@ unregisterReceiver(receiver)
 - [ ] **Step 2: Verify structure**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-app-components.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-app-components.md
 ```
 Expected output:
 ```
@@ -488,7 +488,7 @@ fun AppNavGraph(navController: NavHostController) {
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-ui-layouts.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-ui-layouts.md
 ```
 Expected: `## Concept`, `## Implementation Patterns`, `## Guardrails`, `## References`
 
@@ -711,7 +711,7 @@ data class NotificationConfig(
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/sections/android-architecture.md | head -20
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-architecture.md | head -20
 ```
 
 - [ ] **Step 3: Commit**
@@ -898,7 +898,7 @@ suspend fun readFile(context: Context, fileName: String): ByteArray? {
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-storage.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-storage.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -1080,7 +1080,7 @@ val items = response.data?.items?.map { it.toDomain() } ?: emptyList()
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-networking.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-networking.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -1260,7 +1260,7 @@ WorkManager.getInstance(context).enqueueUniquePeriodicWork(
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-async.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-async.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -1471,7 +1471,7 @@ class FirestoreItemRepository @Inject constructor(
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/sections/android-firebase.md | head -20
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-firebase.md | head -20
 ```
 
 - [ ] **Step 3: Commit**
@@ -1675,7 +1675,7 @@ class SortingBenchmark {
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-code-quality.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-code-quality.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -1906,7 +1906,7 @@ class HomeScreenComposeTest {
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## " /Users/kashif/Documents/xAndroidVide/skills/sections/android-testing.md
+grep "^## " /Users/kashif/Documents/AndroidVibeX/skills/sections/android-testing.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -2019,7 +2019,7 @@ HomeScreen ← collectAsStateWithLifecycle()
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/agents/android-architect.md | head -20
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/agents/android-architect.md | head -20
 ```
 
 - [ ] **Step 3: Commit**
@@ -2100,7 +2100,7 @@ Load the relevant section skills for the task:
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/agents/android-implementer.md
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/agents/android-implementer.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -2206,7 +2206,7 @@ When reporting a diagnosis, always produce:
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/agents/android-debugger.md
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/agents/android-debugger.md
 ```
 
 - [ ] **Step 3: Commit**
@@ -2306,7 +2306,7 @@ Severity levels:
 - [ ] **Step 2: Verify**
 
 ```bash
-grep "^## \|^### " /Users/kashif/Documents/xAndroidVide/skills/agents/android-reviewer.md
+grep "^## \|^### " /Users/kashif/Documents/AndroidVibeX/skills/agents/android-reviewer.md
 ```
 
 - [ ] **Step 3: Commit**
