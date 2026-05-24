@@ -6,5 +6,18 @@
   "author": {
     "name": "mk-imaginationai",
     "url": "https://github.com/mk-imaginationai"
-  }
+  },
+  "homepage": "https://github.com/mk-imaginationai/AndroidVibeX",
+  "repository": "https://github.com/mk-imaginationai/AndroidVibeX",
+  "license": "MIT",
+  "keywords": [
+    "android",
+    "kotlin",
+    "jetpack-compose",
+    "skills",
+    "claude-code"
+  ],
+  "skills": [
+    "./skills/"
+  ]
 }
