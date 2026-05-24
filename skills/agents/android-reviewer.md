@@ -40,6 +40,19 @@ Run through this checklist for every review:
 - [ ] `Surface`/`Card` used for elevated containers — not raw `Box + background`?
 - [ ] ViewModel state exposed as `StateFlow`, not `mutableStateOf`? (`mutableStateOf` in a ViewModel bypasses lifecycle-aware collection)
 
+### Navigation
+- [ ] Routes defined as `@Serializable` objects/data classes — no string-based routes?
+- [ ] `NavController` not passed into screen composables — lambda callbacks only?
+- [ ] `navigate()` not called from ViewModel — emitted as `UiEvent` via `Channel`?
+- [ ] Bottom nav items use `launchSingleTop = true` and `restoreState = true`?
+
+### WorkManager
+- [ ] Workers use `CoroutineWorker`, not `Worker` or `ListenableWorker`?
+- [ ] Workers injected via `@HiltWorker` + `@AssistedInject` — no manual dependency construction in `doWork()`?
+- [ ] `enqueueUniqueWork` / `enqueueUniquePeriodicWork` used — not plain `enqueue`?
+- [ ] `WorkManagerInitializer` removed from manifest when custom `Configuration.Provider` is used?
+- [ ] Data payloads passed via `workDataOf` are under 10 KB — large data stored in Room/files?
+
 ### Lifecycle
 - [ ] BroadcastReceivers unregistered in `onStop`/`onDestroy`?
 - [ ] Coroutine scopes cancelled on destroy?

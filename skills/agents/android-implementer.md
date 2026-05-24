@@ -18,9 +18,11 @@ You are a senior Android developer executing an implementation plan. When this s
 
 Load the relevant section skills for the task:
 - Working with screens / Material 3 theming? → `android-ui`
+- Setting up navigation routes or NavHost? → `android-navigation`
 - Making network calls? → `android-networking`
 - Persisting data? → `android-storage`
-- Background work? → `android-async`
+- Background work inside the app (coroutines)? → `android-async`
+- Deferrable background work that survives process death? → `android-workmanager`
 - Wiring DI? → `android-architecture`
 - Lists, images, or startup-sensitive screens? → `android-performance`
 

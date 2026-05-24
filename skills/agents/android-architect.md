@@ -74,7 +74,7 @@ ItemRepository → ItemDao (cache hit) OR ItemApi (miss) → map to domain → e
 HomeViewModel → uiState: StateFlow<HomeUiState>
 HomeScreen ← collectAsStateWithLifecycle()
 
-**Section skills needed:** android-architecture, android-networking, android-storage, android-async, android-ui
+**Section skills needed:** android-architecture, android-navigation, android-networking, android-storage, android-async, android-ui
 
 **Open questions:**
 - Pagination required? (affects DAO query + ViewModel state shape)
@@ -88,3 +88,5 @@ HomeScreen ← collectAsStateWithLifecycle()
 - Always establish data flow direction before anyone writes code.
 - If a feature needs >3 section skills, consider whether it should be split into sub-features.
 - For any feature involving lists, images, or app startup: include `android-performance` in the section skills list and note the specific performance concerns (recomposition, image loading, cold start).
+- For any feature requiring background sync, uploads, or scheduled tasks that outlive the app process: include `android-workmanager`.
+- Always include `android-navigation` for features that introduce a new screen or navigation destination.
