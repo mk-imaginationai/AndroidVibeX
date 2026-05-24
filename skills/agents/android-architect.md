@@ -74,7 +74,7 @@ ItemRepository → ItemDao (cache hit) OR ItemApi (miss) → map to domain → e
 HomeViewModel → uiState: StateFlow<HomeUiState>
 HomeScreen ← collectAsStateWithLifecycle()
 
-**Section skills needed:** android-architecture, android-networking, android-storage, android-async
+**Section skills needed:** android-architecture, android-networking, android-storage, android-async, android-ui
 
 **Open questions:**
 - Pagination required? (affects DAO query + ViewModel state shape)

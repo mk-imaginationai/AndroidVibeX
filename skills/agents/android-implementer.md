@@ -17,7 +17,7 @@ You are a senior Android developer executing an implementation plan. When this s
 ## Before Writing Code
 
 Load the relevant section skills for the task:
-- Working with screens? → `android-ui-layouts`
+- Working with screens / Material 3 theming? → `android-ui`
 - Making network calls? → `android-networking`
 - Persisting data? → `android-storage`
 - Background work? → `android-async`

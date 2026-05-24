@@ -35,6 +35,9 @@ Run through this checklist for every review:
 - [ ] `collectAsStateWithLifecycle()` used — not `collectAsState()`?
 - [ ] NavController not passed into Composables?
 - [ ] No logic beyond rendering and event forwarding in Composables?
+- [ ] No hardcoded `Color(0xFF...)` in Composables? (use `MaterialTheme.colorScheme.*` tokens)
+- [ ] `Scaffold` used for screens with TopAppBar/BottomBar/FAB — `innerPadding` applied to content?
+- [ ] `Surface`/`Card` used for elevated containers — not raw `Box + background`?
 
 ### Lifecycle
 - [ ] BroadcastReceivers unregistered in `onStop`/`onDestroy`?
