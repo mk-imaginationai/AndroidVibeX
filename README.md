@@ -7,50 +7,60 @@ Covers Kotlin, Jetpack Compose, Material 3, Clean Architecture, Hilt, Room, Retr
 ## Install
 
 ```bash
-claude plugin install github:mk-imaginationai/AndroidVibeX
+# 1. Add the marketplace (one-time)
+claude plugin marketplace add mk-imaginationai/AndroidVibeX
+
+# 2. Install the plugin
+claude plugin install android-vibex
+```
+
+## Usage
+
+Invoke any skill in Claude Code using the `android-vibex:` namespace prefix:
+
+```
+/android-vibex:android-architect  design the task sync feature
+/android-vibex:android-reviewer   review the current diff
+/android-vibex:android-implementer implement the camera capture flow
+```
+
+Section skills can also be loaded manually for reference:
+
+```
+/android-vibex:android-camera
+/android-vibex:android-networking
 ```
 
 ## What's included
 
-### Section skills (load automatically when relevant)
+### Agent skills (invoke explicitly to drive a workflow)
+
+| Skill | Role |
+|---|---|
+| `android-vibex:android-architect` | Designs feature architecture — module structure, data flow, DI wiring |
+| `android-vibex:android-implementer` | Executes implementation plans, follows section skills |
+| `android-vibex:android-reviewer` | Reviews code for correctness, architecture, and skill compliance |
+| `android-vibex:android-debugger` | Diagnoses build errors, crashes, and runtime issues |
+
+### Section skills (reference guides)
 
 | Skill | Covers |
 |---|---|
-| `android-ui` | Material 3 theming, ColorScheme, Typography, Shapes, dynamic color, NavigationSuiteScaffold, adaptive layouts |
-| `android-navigation` | Type-safe Navigation 2.8+ with `@Serializable` routes, NavHost, deep links, dialogs, nested graphs |
-| `android-architecture` | MVVM + Repository, Clean Architecture layers, Hilt DI, Use Cases, sealed UI state |
-| `android-networking` | Retrofit + OkHttp, kotlinx.serialization, `networkBoundResource`, Result wrapping |
-| `android-storage` | Room (Entity, DAO, TypeConverter, Relation, migrations), DataStore |
-| `android-async` | Coroutines, Flow, StateFlow, `viewModelScope`, `collectAsStateWithLifecycle` |
-| `android-workmanager` | `CoroutineWorker`, `@HiltWorker`, `enqueueUniqueWork`, periodic work, Hilt integration |
-| `android-camera` | CameraX, `ProcessCameraProvider`, `ImageCapture`, tap-to-focus, permission handling |
-| `android-build` | AGP 9 upgrade, KSP, ProGuard/R8 rules, Baseline Profiles |
-| `android-testing` | ViewModel unit tests with fakes, Room integration tests, Compose UI tests, Turbine, Roborazzi |
-| `android-performance` | `@Stable`/`@Immutable`, `ImmutableList`, `LazyColumn` keys, Baseline Profiles, Macrobenchmark |
-| `android-firebase` | Firestore, Auth, FCM, Crashlytics, Remote Config |
-| `android-app-components` | Activity, Fragment, BroadcastReceiver, Service lifecycle |
-| `android-code-quality` | Lint, Detekt, StrictMode, LeakCanary |
-
-### Agent skills (invoke explicitly)
-
-| Agent | Role |
-|---|---|
-| `android-architect` | Designs feature architecture — module structure, data flow, DI wiring |
-| `android-implementer` | Executes implementation plans, follows section skills |
-| `android-reviewer` | Reviews code for correctness, architecture, and skill compliance |
-| `android-debugger` | Diagnoses build errors, crashes, and runtime issues |
-
-## Usage
-
-Once installed, invoke any agent or skill in Claude Code:
-
-```
-/android-architect design the task sync feature
-/android-reviewer review the current diff
-/android-implementer implement the camera capture flow
-```
-
-Section skills are loaded automatically by the implementer when relevant.
+| `android-vibex:android-ui` | Material 3 theming, ColorScheme, Typography, Shapes, dynamic color, NavigationSuiteScaffold, adaptive layouts |
+| `android-vibex:android-navigation` | Type-safe Navigation 2.8+ with `@Serializable` routes, NavHost, deep links, dialogs, nested graphs |
+| `android-vibex:android-architecture` | MVVM + Repository, Clean Architecture layers, Hilt DI, Use Cases, sealed UI state |
+| `android-vibex:android-networking` | Retrofit + OkHttp, kotlinx.serialization, `networkBoundResource`, Result wrapping |
+| `android-vibex:android-storage` | Room (Entity, DAO, TypeConverter, Relation, migrations), DataStore |
+| `android-vibex:android-async` | Coroutines, Flow, StateFlow, `viewModelScope`, `collectAsStateWithLifecycle` |
+| `android-vibex:android-workmanager` | `CoroutineWorker`, `@HiltWorker`, `enqueueUniqueWork`, periodic work, Hilt integration |
+| `android-vibex:android-camera` | CameraX, `ProcessCameraProvider`, `ImageCapture`, tap-to-focus, permission handling |
+| `android-vibex:android-build` | AGP 9 upgrade, KSP, ProGuard/R8 rules, Baseline Profiles |
+| `android-vibex:android-testing` | ViewModel unit tests with fakes, Room integration tests, Compose UI tests, Turbine, Roborazzi |
+| `android-vibex:android-performance` | `@Stable`/`@Immutable`, `ImmutableList`, `LazyColumn` keys, Baseline Profiles, Macrobenchmark |
+| `android-vibex:android-firebase` | Firestore, Auth, FCM, Crashlytics, Remote Config |
+| `android-vibex:android-app-components` | Activity, Fragment, BroadcastReceiver, Service lifecycle |
+| `android-vibex:android-ui-layouts` | XML layouts, ConstraintLayout, Fragments, App Shortcuts |
+| `android-vibex:android-code-quality` | Lint, Detekt, StrictMode, LeakCanary |
 
 ## Example project
 
