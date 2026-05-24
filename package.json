@@ -1,5 +1,7 @@
 {
-  "name": "AndroidVibeX",
+  "name": "android-vibex",
   "version": "1.0.0",
-  "description": "Production-grade Android development skills for Claude Code — Kotlin, Jetpack Compose, Material 3, Hilt, Room, WorkManager, CameraX, and more."
+  "description": "Production-grade Android development skills for Claude Code — Kotlin, Jetpack Compose, Material 3, Hilt, Room, WorkManager, CameraX, and more.",
+  "keywords": ["claude-code-plugin", "claude-plugin", "android", "kotlin", "jetpack-compose"],
+  "main": "./.claude-plugin/plugin.json"
 }

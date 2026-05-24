@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "AndroidVibeX",
+  "description": "Production-grade Android development skills for Claude Code",
+  "owner": {
+    "name": "mk-imaginationai",
+    "url": "https://github.com/mk-imaginationai"
+  },
+  "plugins": [
+    {
+      "name": "android-vibex",
+      "description": "Production-grade Android development skills — Kotlin, Jetpack Compose, Material 3, Hilt, Room, WorkManager, CameraX, and more",
+      "source": "./"
+    }
+  ]
+}

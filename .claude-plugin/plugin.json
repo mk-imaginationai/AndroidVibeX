@@ -1,0 +1,106 @@
+{
+  "name": "android-vibex",
+  "description": "Production-grade Android development skills for Claude Code — Kotlin, Jetpack Compose, Material 3, Hilt, Room, WorkManager, CameraX, and more",
+  "version": "1.0.0",
+  "author": {
+    "name": "mk-imaginationai",
+    "url": "https://github.com/mk-imaginationai"
+  },
+  "skills": [
+    {
+      "name": "android-architect",
+      "description": "Design app structure, architecture patterns, module boundaries before implementation",
+      "source": "../skills/agents/android-architect.md"
+    },
+    {
+      "name": "android-debugger",
+      "description": "Debug Android issues systematically",
+      "source": "../skills/agents/android-debugger.md"
+    },
+    {
+      "name": "android-implementer",
+      "description": "Implement Android features following clean architecture",
+      "source": "../skills/agents/android-implementer.md"
+    },
+    {
+      "name": "android-reviewer",
+      "description": "Review Android code for correctness, performance, and standards compliance",
+      "source": "../skills/agents/android-reviewer.md"
+    },
+    {
+      "name": "android-architecture",
+      "description": "MVVM, Repository pattern, Clean Architecture for Android",
+      "source": "../skills/sections/android-architecture.md"
+    },
+    {
+      "name": "android-async",
+      "description": "Kotlin Coroutines, Flows, lifecycle-aware async patterns",
+      "source": "../skills/sections/android-async.md"
+    },
+    {
+      "name": "android-build",
+      "description": "Gradle, build variants, dependencies, and build optimization",
+      "source": "../skills/sections/android-build.md"
+    },
+    {
+      "name": "android-camera",
+      "description": "CameraX integration patterns",
+      "source": "../skills/sections/android-camera.md"
+    },
+    {
+      "name": "android-code-quality",
+      "description": "Code quality standards, linting, and best practices",
+      "source": "../skills/sections/android-code-quality.md"
+    },
+    {
+      "name": "android-firebase",
+      "description": "Firebase integration — Auth, Firestore, FCM, Crashlytics",
+      "source": "../skills/sections/android-firebase.md"
+    },
+    {
+      "name": "android-navigation",
+      "description": "Jetpack Navigation Compose, deep links, back stack management",
+      "source": "../skills/sections/android-navigation.md"
+    },
+    {
+      "name": "android-networking",
+      "description": "Retrofit, OkHttp, API client patterns",
+      "source": "../skills/sections/android-networking.md"
+    },
+    {
+      "name": "android-performance",
+      "description": "Android performance profiling and optimization",
+      "source": "../skills/sections/android-performance.md"
+    },
+    {
+      "name": "android-storage",
+      "description": "Room, DataStore, file storage patterns",
+      "source": "../skills/sections/android-storage.md"
+    },
+    {
+      "name": "android-testing",
+      "description": "Unit tests, instrumentation tests, Compose UI testing",
+      "source": "../skills/sections/android-testing.md"
+    },
+    {
+      "name": "android-ui",
+      "description": "Jetpack Compose components, Material 3, theming",
+      "source": "../skills/sections/android-ui.md"
+    },
+    {
+      "name": "android-ui-layouts",
+      "description": "Compose layouts, constraints, adaptive UI",
+      "source": "../skills/sections/android-ui-layouts.md"
+    },
+    {
+      "name": "android-app-components",
+      "description": "Activities, Services, BroadcastReceivers, ContentProviders",
+      "source": "../skills/sections/android-app-components.md"
+    },
+    {
+      "name": "android-workmanager",
+      "description": "WorkManager for background task scheduling",
+      "source": "../skills/sections/android-workmanager.md"
+    }
+  ]
+}

@@ -62,4 +62,6 @@ VibeTasks demonstrates every skill in a working Android app. See `VibeTasks/` in
 
 ## Contributing
 
-PRs welcome. Each skill lives in `skills/sections/` or `skills/agents/`. Follow the existing format: Concept table → Implementation patterns → Guardrails (DO/DON'T) → References.
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow — how to update an existing skill, create a new one, and open a PR.
+
+Every contribution must include the skill guidance that teaches the pattern. Code without a skill entry is incomplete.
