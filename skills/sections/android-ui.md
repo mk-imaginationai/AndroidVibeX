@@ -290,6 +290,69 @@ fun FilterSheet(
 }
 ```
 
+### NavigationSuiteScaffold (adaptive nav bar/rail)
+
+Replaces `Scaffold + NavigationBar` — automatically switches between `NavigationBar` (compact) and `NavigationRail` (medium/expanded) based on window size. Requires `material3-adaptive-navigation-suite`.
+
+```kotlin
+// build.gradle.kts
+// implementation("androidx.compose.material3:material3-adaptive-navigation-suite")
+
+NavigationSuiteScaffold(
+    navigationSuiteItems = {
+        navItems.forEachIndexed { index, item ->
+            item(
+                selected = selectedIndex == index,
+                onClick = { selectedIndex = index },
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label) }
+            )
+        }
+    }
+) {
+    // screen content here — no manual Row/Column switching needed
+}
+```
+
+Use `NavigationSuiteScaffoldState` + `LaunchedEffect` to show/hide the nav area:
+
+```kotlin
+val scaffoldState = rememberNavigationSuiteScaffoldState()
+var isNavVisible by remember { mutableStateOf(true) }
+
+NavigationSuiteScaffold(
+    navigationSuiteItems = { /* ... */ },
+    state = scaffoldState
+) { /* content */ }
+
+LaunchedEffect(isNavVisible) {
+    if (isNavVisible) scaffoldState.show() else scaffoldState.hide()
+}
+```
+
+### Edge-to-Edge & IME Insets
+
+```kotlin
+// Activity.onCreate — call before setContent
+enableEdgeToEdge()
+
+// For text input screens — add to AndroidManifest.xml activity:
+// android:windowSoftInputMode="adjustResize"
+
+// Inside Scaffold content — innerPadding already includes system bars
+LazyColumn(contentPadding = innerPadding) { /* ... */ }
+
+// Outside Scaffold — apply safe drawing padding manually
+Box(modifier = Modifier.safeDrawingPadding()) { /* ... */ }
+
+// Text fields — prefer fitInside over imePadding to avoid jank and double-padding
+TextField(
+    modifier = Modifier
+        .fillMaxWidth()
+        .fitInside(WindowInsetsRulers.Ime.current)  // requires Compose 1.8+
+)
+```
+
 ### Button Variants
 
 ```kotlin

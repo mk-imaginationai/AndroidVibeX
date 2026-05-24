@@ -23,6 +23,8 @@ Load the relevant section skills for the task:
 - Persisting data? → `android-storage`
 - Background work inside the app (coroutines)? → `android-async`
 - Deferrable background work that survives process death? → `android-workmanager`
+- Camera / photo capture? → `android-camera`
+- Build config, AGP upgrade, ProGuard rules? → `android-build`
 - Wiring DI? → `android-architecture`
 - Lists, images, or startup-sensitive screens? → `android-performance`
 

@@ -273,8 +273,78 @@ val result = savedStateHandle
 
 ---
 
+## Navigation 3 (next-generation library)
+
+Navigation 3 is a separate, newer library (`androidx.navigation:navigation3-*`) with a different API. Use it for new projects targeting adaptive/multi-pane layouts. Navigation 2.8 remains stable and is fine for most apps.
+
+**Key differences from Nav 2:**
+
+| | Navigation 2.8 | Navigation 3 |
+|---|---|---|
+| Back stack | managed internally | `List<Any>` as Compose state |
+| Host | `NavHost` | `NavDisplay` |
+| Entry | `composable<Route>` | `NavEntry` |
+| Multi-pane | manual | `ListDetailSceneStrategy` / `SupportingPaneSceneStrategy` |
+
+```kotlin
+// Navigation 3 — basic setup
+val backStack = remember { mutableStateListOf<Any>(HomeRoute) }
+
+NavDisplay(
+    backStack = backStack,
+    onBack = { if (backStack.size > 1) backStack.removeLast() },
+    entryProvider = entryProvider {
+        entry<HomeRoute> {
+            HomeScreen(onNavigate = { backStack.add(DetailRoute(it)) })
+        }
+        entry<DetailRoute> { entry ->
+            DetailScreen(id = entry.key.id, onBack = { backStack.removeLast() })
+        }
+    }
+)
+
+// List-detail multi-pane (Navigation 3 + material3-adaptive)
+val strategy = rememberListDetailSceneStrategy<Any>()
+NavDisplay(
+    backStack = backStack,
+    sceneStrategies = listOf(strategy),
+    entryProvider = entryProvider {
+        entry<HomeRoute>(metadata = ListDetailSceneStrategy.listPane(
+            detailPlaceholder = { Text("Select an item") }
+        )) { HomeScreen(...) }
+
+        entry<DetailRoute>(metadata = ListDetailSceneStrategy.detailPane()) {
+            DetailScreen(...)
+        }
+    }
+)
+```
+
+Navigation 3 also uses `NavigationSuiteScaffold` for adaptive nav bar/rail — replace `Scaffold + NavigationBar`:
+
+```kotlin
+NavigationSuiteScaffold(
+    navigationSuiteItems = {
+        navItems.forEachIndexed { index, item ->
+            item(
+                selected = selectedIndex == index,
+                onClick = { selectedIndex = index },
+                icon = { Icon(item.icon, item.label) },
+                label = { Text(item.label) }
+            )
+        }
+    }
+) {
+    // screen content — NavigationSuiteScaffold auto-switches between
+    // NavigationBar (compact) and NavigationRail (medium/expanded)
+}
+```
+
+---
+
 ## References
 - [Navigation Compose](https://developer.android.com/jetpack/compose/navigation)
 - [Type-safe navigation (2.8+)](https://developer.android.com/guide/navigation/design/type-safety)
+- [Navigation 3](https://developer.android.com/guide/navigation/navigation-3)
 - [Deep links](https://developer.android.com/guide/navigation/design/deep-link)
 - [Nested graphs](https://developer.android.com/guide/navigation/design/nested-graphs)

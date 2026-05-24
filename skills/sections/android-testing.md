@@ -280,6 +280,48 @@ Cold `Flow`s (from a repository or Use Case) do NOT have this initial emission â
 - Don't skip the `@After` teardown â€” always close in-memory databases.
 - Don't share ViewModel instances between tests â€” recreate in `@Before`.
 
+### Screenshot Testing
+
+Use Roborazzi for screenshot regression tests. Test each screen across form factors.
+
+```kotlin
+// build.gradle.kts
+// testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.7.0")
+
+@Preview(name = "Phone",    device = Devices.PHONE,    showBackground = true)
+@Preview(name = "Foldable", device = Devices.FOLDABLE, showBackground = true)
+@Preview(name = "Tablet",   device = Devices.TABLET,   showBackground = true)
+annotation class FormFactorPreviews
+
+@RunWith(RobolectricTestRunner::class)
+class TaskListScreenshotTest {
+
+    @get:Rule
+    val roborazziRule = RoborazziRule(
+        options = RoborazziRule.Options(outputDirectoryPath = "src/test/snapshots")
+    )
+
+    @Test
+    @FormFactorPreviews
+    fun taskListScreen_snapshot() {
+        composeTestRule.setContent {
+            AppTheme {
+                TaskListScreen(
+                    uiState = TaskListUiState(tasks = persistentListOf()),
+                    snackbarHostState = SnackbarHostState()
+                )
+            }
+        }
+        // Roborazzi captures automatically via the rule
+    }
+}
+```
+
+```bash
+./gradlew recordRoborazziDebug   # record baselines
+./gradlew verifyRoborazziDebug   # CI regression check
+```
+
 ---
 
 ## References
@@ -287,3 +329,4 @@ Cold `Flow`s (from a repository or Use Case) do NOT have this initial emission â
 - [JUnit local tests](https://developer.android.com/training/testing/local-tests)
 - [Espresso](https://developer.android.com/training/testing/espresso)
 - [Compose testing](https://developer.android.com/develop/ui/compose/testing)
+- [Roborazzi](https://github.com/takahirom/roborazzi)
