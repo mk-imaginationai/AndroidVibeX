@@ -2,12 +2,12 @@
 
 Production-grade Android development skills for [Claude Code](https://claude.ai/code).
 
-Covers Kotlin, Jetpack Compose, Material 3, Clean Architecture, Hilt, Room, Retrofit, WorkManager, CameraX, and more — with a working example app ([VibeTasks](https://github.com/your-username/VibeTasks)).
+Covers Kotlin, Jetpack Compose, Material 3, Clean Architecture, Hilt, Room, Retrofit, WorkManager, CameraX, and more — with a working example app ([VibeTasks](https://github.com/mk-imaginationai/VibeTasks)).
 
 ## Install
 
 ```bash
-claude plugin install github:your-username/AndroidVibeX
+claude plugin install github:mk-imaginationai/AndroidVibeX
 ```
 
 ## What's included
